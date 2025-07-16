@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "id": "one-click-anvil",
+  "version": "${version}",
+  "name": "One Click Anvil",
+  "description": "Anvil faster using less clicks",
+  "authors": [
+    "BreadMoirai"
+  ],
+  "contact": {
+    "homepage": "https://github.com/BreadMoirai/OneClickAnvil",
+    "issues": "https://github.com/BreadMoirai/OneClickAnvil/discussions",
+    "sources": "https://github.com/BreadMoirai/OneClickAnvil"
+  },
+  "license": "MIT",
+  "icon": "assets/oneclickanvil/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.github.breadmoirai.oneclickanvil.client.OneClickAnvilClient"
+    ],
+    "modmenu": [
+      "com.github.breadmoirai.oneclickanvil.config.OneClickAnvilModMenu"
+    ]
+  },
+  "mixins": [
+    "one-click-anvil.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.7",
+    "fabric-key-binding-api-v1": "*",
+    "yet_another_config_lib_v3": ">=3.7.1+1.21.6-fabric"
+  },
+  "recommends": {
+    "minecraft": ">=1.21.6"
+  },
+  "accessWidener": "oneclickanvil.accesswidener",
+  "custom": {
+    "mc-publish": {
+      "modrinth": "k3ZiREPD",
+      "dependencies": [
+        "fabric-api(required)",
+        "modmenu(required)",
+        "yacl(required)"
+      ]
+    }
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "modmenu.nameTranslation.one-click-anvil": "One Click Anvil",
+  "modmenu.descriptionTranslation.one-click-anvil": "Auto rename items using the anvil",
+  "modmenu.summaryTranslation.one-click-anvil": "Auto rename items using the anvil",
+  "oneclickanvil.config.title": "One Click Anvil Config",
+  "oneclickanvil.config.group.name": "Options",
+  "oneclickanvil.config.item.name": "Item",
+  "oneclickanvil.config.item.description": "item id of which to rename",
+  "oneclickanvil.config.rename.name": "Rename",
+  "oneclickanvil.config.rename.description": "Name to rename items to"
+}
