@@ -12,11 +12,11 @@ import net.minecraft.client.gui.screen.ingame.AnvilScreen;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerInteractionManager;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.screen.slot.SlotActionType;
+import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 
@@ -31,6 +31,8 @@ public class OneClickAnvilClient implements ClientModInitializer, ClientTickEven
     private OneClickAnvilConfig config;
     private ArrayList<Runnable> ops;
 
+    private boolean is_renaming;
+
     @Override
     public void onInitializeClient() {
         INSTANCE = this;
@@ -39,34 +41,48 @@ public class OneClickAnvilClient implements ClientModInitializer, ClientTickEven
         ops = new ArrayList<>();
         ScreenEvents.AFTER_INIT.register(this);
         ClientTickEvents.START_CLIENT_TICK.register(this);
+        is_renaming = false;
     }
 
     public void onAnvilScreenSlotUpdate(AnvilScreen anvil, ScreenHandler handler, int slotId, ItemStack stack) {
         if (config.getItem().isEmpty() || config.getRename().isEmpty()) return;
-        if (slotId == 0) {
-            if (!stackMatchesItemToRename(stack)) return;
-            ops.add(() -> anvil.nameField.setText(config.getRename()));
-        }
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return;
+        ClientPlayerInteractionManager interactionManager = MinecraftClient.getInstance().interactionManager;
+        if (interactionManager == null) return;
+        if (slotId == 0) {
+            if (stack.getCustomName() != null) return;
+            if (!stackMatchesItemToRename(stack)) return;
+            if (stack.getCount() != stack.getMaxCount()) return;
+            ops.add(() -> {
+                this.is_renaming = true;
+                anvil.nameField.setText(config.getRename());
+            });
+        }
         if (slotId == 2) {
-            ClientPlayerInteractionManager interactionManager = MinecraftClient.getInstance().interactionManager;
-            if (interactionManager == null) return;
-            if (stack.getCustomName() != null) {
-                ops.add(() -> interactionManager.clickSlot(handler.syncId, slotId, 0, SlotActionType.QUICK_MOVE, player));
-            } else if (stack.isEmpty()) {
+            if (!this.is_renaming) {
+                return;
+            }
+            if (stack.isEmpty()) {
                 ops.add(() -> {
                     for (Slot slot : anvil.getScreenHandler().slots) {
                         if (slot.inventory != player.getInventory()) continue;
                         if (!slot.hasStack()) continue;
-                        if (!stackMatchesItemToRename(slot.getStack())) continue;
-                        if (slot.getStack().getCustomName() != null) continue;
+                        ItemStack nextStack = slot.getStack();
+                        if (!stackMatchesItemToRename(nextStack)) continue;
+                        if (nextStack.getCustomName() != null) continue;
+                        if (nextStack.getCount() != nextStack.getMaxCount()) continue;
                         interactionManager.clickSlot(anvil.getScreenHandler().syncId, slot.id, 0, SlotActionType.QUICK_MOVE, player);
                         return;
                     }
-                    System.out.println("Nothing left to rename");
+                    this.is_renaming = false;
                 });
-
+            } else {
+                Text customName = stack.getCustomName();
+                if (customName == null) return;
+                if (config.getRename().equals(customName.getLiteralString())) {
+                    ops.add(() -> interactionManager.clickSlot(handler.syncId, slotId, 0, SlotActionType.QUICK_MOVE, player));
+                }
             }
         }
     }
