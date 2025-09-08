@@ -10,25 +10,23 @@ import net.fabricmc.loader.api.FabricLoader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class OneClickAnvilConfig {
    private static final Path CONFIG_PATH;
    private static final OneClickAnvilConfig INSTANCE;
-   private static final transient Gson GSON;
+   private static final Gson GSON;
 
    static {
       CONFIG_PATH = FabricLoader.getInstance().getConfigDir().resolve("oneclickanvil.json");
       INSTANCE = new OneClickAnvilConfig();
       GSON = new GsonBuilder()
-              .setPrettyPrinting()
-              .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
-              .create();
+         .setPrettyPrinting()
+         .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+         .create();
    }
-
-
-   private String item = "";
-   private String rename = "";
 
    public static OneClickAnvilConfig getInstance() {
       return INSTANCE;
@@ -40,8 +38,8 @@ public class OneClickAnvilConfig {
             String s = Files.readString(CONFIG_PATH);
             OneClickAnvilConfig config = GSON.fromJson(s, OneClickAnvilConfig.class);
             OneClickAnvilConfig instance = getInstance();
-            instance.item = config.item;
-            instance.rename = config.rename;
+            instance.entries.clear();
+            instance.entries.addAll(config.entries);
          } catch (IOException e) {
             e.printStackTrace();
          }
@@ -60,20 +58,48 @@ public class OneClickAnvilConfig {
       }
    }
 
+   public static class Entry {
+      private String item = "";
+      private String rename = "";
+      private boolean enabled = true;
 
-   public String getItem() {
-      return item;
+      public String getItem() {
+         return item;
+      }
+
+      public void setItem(String item) {
+         this.item = item;
+      }
+
+      public String getRename() {
+         return rename;
+      }
+
+      public void setRename(String rename) {
+         this.rename = rename;
+      }
+
+      public boolean isEnabled() {
+         return enabled;
+      }
+
+      public void setEnabled(boolean enabled) {
+         this.enabled = enabled;
+      }
    }
 
-   public void setItem(String item) {
-      this.item = item;
+   private final List<Entry> entries = new ArrayList<>();
+
+   public List<Entry> getEntries() {
+      return List.copyOf(entries);
    }
 
-   public String getRename() {
-      return rename;
+   public void addEntry() {
+      Entry e = new Entry();
+      entries.add(e);
    }
 
-   public void setRename(String name) {
-      this.rename = name;
+   public void removeEntry(Entry e) {
+      entries.remove(e);
    }
 }
