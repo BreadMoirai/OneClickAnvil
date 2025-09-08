@@ -4,8 +4,13 @@
   "modmenu.summaryTranslation.one-click-anvil": "Auto rename items using the anvil",
   "oneclickanvil.config.title": "One Click Anvil Config",
   "oneclickanvil.config.group.name": "Options",
+  "oneclickanvil.config.entry.name": "Entry",
+  "oneclickanvil.config.entry.add": "Add Entry",
+  "oneclickanvil.config.entry.remove": "Remove Entry",
   "oneclickanvil.config.item.name": "Item",
-  "oneclickanvil.config.item.description": "item id of which to rename",
+  "oneclickanvil.config.item.description": "Item id of which to rename",
   "oneclickanvil.config.rename.name": "Rename",
-  "oneclickanvil.config.rename.description": "Name to rename items to"
+  "oneclickanvil.config.rename.description": "Name to rename items to",
+  "oneclickanvil.config.enabled.name": "Enabled",
+  "oneclickanvil.config.enabled.description": "When enabled, will activate renaming functionality for this entry. If not enabled, this entry is ignored."
 }
