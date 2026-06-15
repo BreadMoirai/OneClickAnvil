@@ -1,6 +1,7 @@
 package com.github.breadmoirai.oneclickanvil.client;
 
 import com.github.breadmoirai.oneclickanvil.config.OneClickAnvilConfig;
+import com.github.breadmoirai.oneclickanvil.mixin.AnvilScreenAccessor;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -15,7 +16,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
@@ -57,7 +58,7 @@ public class OneClickAnvilClient implements ClientModInitializer, ClientTickEven
          if (stack.getCount() != stack.getMaxStackSize()) return;
          getRename(stack).ifPresent(rename -> ops.add(() -> {
             this.renaming = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
-            anvil.name.setValue(rename);
+            ((AnvilScreenAccessor) anvil).getName().setValue(rename);
          }));
       }
       if (slotId == 2) {
@@ -67,6 +68,11 @@ public class OneClickAnvilClient implements ClientModInitializer, ClientTickEven
          if (stack.isEmpty()) {
             String to_rename = this.renaming;
             ops.add(() -> {
+               // A slot-2-empty update can fire while the stack being renamed is still in input
+               // slot 0 (output not yet computed/pulled). Pulling the next stack now would shift-
+               // click it into input slot 1 — which this mod never processes — stranding it there.
+               // Only advance once slot 0 is clear; the in-progress rename re-triggers this later.
+               if (anvil.getMenu().getSlot(0).hasItem()) return;
                for (Slot slot : anvil.getMenu().slots) {
                   if (slot.container != player.getInventory()) continue;
                   if (!slot.hasItem()) continue;
@@ -74,7 +80,7 @@ public class OneClickAnvilClient implements ClientModInitializer, ClientTickEven
                   if (!to_rename.equals(BuiltInRegistries.ITEM.getKey(nextStack.getItem()).toString())) continue;
                   if (nextStack.get(DataComponents.CUSTOM_NAME) != null) continue;
                   if (nextStack.getCount() != nextStack.getMaxStackSize()) continue;
-                  interactionManager.handleInventoryMouseClick(anvil.getMenu().containerId, slot.index, 0, ClickType.QUICK_MOVE,
+                  interactionManager.handleContainerInput(anvil.getMenu().containerId, slot.index, 0, ContainerInput.QUICK_MOVE,
                      player);
                   return;
                }
@@ -86,7 +92,7 @@ public class OneClickAnvilClient implements ClientModInitializer, ClientTickEven
             getRename(stack).ifPresent(rename -> {
                if (rename.equals(customName.getString())) {
                   ops.add(
-                     () -> interactionManager.handleInventoryMouseClick(handler.containerId, slotId, 0, ClickType.QUICK_MOVE, player));
+                     () -> interactionManager.handleContainerInput(handler.containerId, slotId, 0, ContainerInput.QUICK_MOVE, player));
                }
             });
          }

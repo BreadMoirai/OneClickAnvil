@@ -22,6 +22,7 @@ public class AnvilTests extends TestSuite {
       configPersistenceViaUi();
 
       autoRenameHappyPath();
+      repeatedRenameAllStacks();
       disabledEntryNoOp();
       nonMatchingItemNoOp();
       alreadyNamedSkipped();
@@ -58,6 +59,21 @@ public class AnvilTests extends TestSuite {
       quickMoveFromInventory("minecraft:diamond_sword");
       wait(10);
       assertInventoryContainsNamed("minecraft:diamond_sword", "Excalibur");
+      closeScreen();
+   }
+
+   /**
+    * Suite 2b — moving one of many matching stacks into the input chains through them all.
+    * With 9 full stacks in the inventory, a single quick-move into the anvil should drive the
+    * mod's auto-pull loop until every stack has been renamed (covers the multi-stack feature).
+    */
+   public void repeatedRenameAllStacks() {
+      setSingleConfigEntry("minecraft:diamond_sword", "Excalibur", true);
+      clearInventory();
+      giveItem("minecraft:diamond_sword 9"); // 9 swords spread across 9 slots, each a full stack
+      openAnvil();
+      quickMoveFromInventory("minecraft:diamond_sword");
+      assertInventoryCountNamed("minecraft:diamond_sword", "Excalibur", 9);
       closeScreen();
    }
 

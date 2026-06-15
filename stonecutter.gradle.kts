@@ -4,7 +4,7 @@ plugins {
     id("net.fabricmc.fabric-loom-remap") version "1.15-SNAPSHOT" apply false
 }
 
-stonecutter active "1.21.7"
+stonecutter active "26.1.2"
 
 // Transforms JDK 22+ unnamed variables (_) in the shared src/ when switching versions.
 // Forward (toUnnamed=false): replaces standalone _ with unused1, unused2, ... (per file)
@@ -43,5 +43,12 @@ tasks.register("restoreUnnamedVars") {
 }
 
 afterEvaluate {
+    tasks.findByName("stonecutterSwitchTo26.1.2")?.finalizedBy("restoreUnnamedVars")
+    tasks.findByName("stonecutterSwitchTo26.1.1")?.finalizedBy("restoreUnnamedVars")
+    tasks.findByName("stonecutterSwitchTo26.1")?.finalizedBy("restoreUnnamedVars")
+    tasks.findByName("stonecutterSwitchTo1.21.11")?.finalizedBy("transformUnnamedVars")
+    tasks.findByName("stonecutterSwitchTo1.21.10")?.finalizedBy("transformUnnamedVars")
+    tasks.findByName("stonecutterSwitchTo1.21.9")?.finalizedBy("transformUnnamedVars")
+    tasks.findByName("stonecutterSwitchTo1.21.8")?.finalizedBy("transformUnnamedVars")
     tasks.findByName("stonecutterSwitchTo1.21.7")?.finalizedBy("transformUnnamedVars")
 }

@@ -3,9 +3,7 @@ name: Publish Mod
 on: [ pull_request, workflow_dispatch ]
 
 env:
-  MINECRAFT_VERSION: 1.21.7
-  JAVA_VERSION: 21
-  MOD_VERSION: 1.1.0
+  MOD_VERSION: 1.1.1
 
 permissions:
   contents: write
@@ -25,30 +23,144 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: ${{ env.JAVA_VERSION }}
+          java-version: |
+            21
+            25
 
-      - name: Build
-        run: bash ./gradlew :${{ env.MINECRAFT_VERSION }}:buildAndCollect
+      - name: Build All Versions
+        run: bash ./gradlew buildAndCollect
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.G_TOKEN }}
-          tag_name: "${{ env.MOD_VERSION }}+${{ env.MINECRAFT_VERSION }}"
-          name: "${{ env.MOD_VERSION }}+${{ env.MINECRAFT_VERSION }}"
+          tag_name: "${{ env.MOD_VERSION }}"
+          name: "${{ env.MOD_VERSION }}"
           files: build/libs/${{ env.MOD_VERSION }}/*.jar
 
-      - name: Publish ${{ env.MINECRAFT_VERSION }}
+      - name: Publish 1.21.7
         uses: Kir-Antipov/mc-publish@v3.3
         with:
           modrinth-token: ${{ secrets.M_TOKEN }}
-          files: build/libs/${{ env.MOD_VERSION }}/one-click-anvil-${{ env.MOD_VERSION }}+${{ env.MINECRAFT_VERSION }}*.jar
-          name: "${{ env.MOD_VERSION }}+${{ env.MINECRAFT_VERSION }}"
-          version: "${{ env.MOD_VERSION }}+${{ env.MINECRAFT_VERSION }}"
+          files: build/libs/${{ env.MOD_VERSION }}/one-click-anvil-${{ env.MOD_VERSION }}+1.21.7*.jar
+          name: "${{ env.MOD_VERSION }}+1.21.7"
+          version: "${{ env.MOD_VERSION }}+1.21.7"
           version-type: release
           loaders: fabric
-          game-versions: "${{ env.MINECRAFT_VERSION }}"
-          java: "${{ env.JAVA_VERSION }}"
+          game-versions: "1.21.7"
+          java: 21
+          dependencies: |
+            fabric-api
+            modmenu
+            yacl
+
+      - name: Publish 1.21.8
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-token: ${{ secrets.M_TOKEN }}
+          files: build/libs/${{ env.MOD_VERSION }}/one-click-anvil-${{ env.MOD_VERSION }}+1.21.8*.jar
+          name: "${{ env.MOD_VERSION }}+1.21.8"
+          version: "${{ env.MOD_VERSION }}+1.21.8"
+          version-type: release
+          loaders: fabric
+          game-versions: "1.21.8"
+          java: 21
+          dependencies: |
+            fabric-api
+            modmenu
+            yacl
+
+      - name: Publish 1.21.9
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-token: ${{ secrets.M_TOKEN }}
+          files: build/libs/${{ env.MOD_VERSION }}/one-click-anvil-${{ env.MOD_VERSION }}+1.21.9*.jar
+          name: "${{ env.MOD_VERSION }}+1.21.9"
+          version: "${{ env.MOD_VERSION }}+1.21.9"
+          version-type: release
+          loaders: fabric
+          game-versions: "1.21.9"
+          java: 21
+          dependencies: |
+            fabric-api
+            modmenu
+            yacl
+
+      - name: Publish 1.21.10
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-token: ${{ secrets.M_TOKEN }}
+          files: build/libs/${{ env.MOD_VERSION }}/one-click-anvil-${{ env.MOD_VERSION }}+1.21.10*.jar
+          name: "${{ env.MOD_VERSION }}+1.21.10"
+          version: "${{ env.MOD_VERSION }}+1.21.10"
+          version-type: release
+          loaders: fabric
+          game-versions: "1.21.10"
+          java: 21
+          dependencies: |
+            fabric-api
+            modmenu
+            yacl
+
+      - name: Publish 1.21.11
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-token: ${{ secrets.M_TOKEN }}
+          files: build/libs/${{ env.MOD_VERSION }}/one-click-anvil-${{ env.MOD_VERSION }}+1.21.11*.jar
+          name: "${{ env.MOD_VERSION }}+1.21.11"
+          version: "${{ env.MOD_VERSION }}+1.21.11"
+          version-type: release
+          loaders: fabric
+          game-versions: "1.21.11"
+          java: 21
+          dependencies: |
+            fabric-api
+            modmenu
+            yacl
+
+      - name: Publish 26.1
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-token: ${{ secrets.M_TOKEN }}
+          files: build/libs/${{ env.MOD_VERSION }}/one-click-anvil-${{ env.MOD_VERSION }}+26.1.jar
+          name: "${{ env.MOD_VERSION }}+26.1"
+          version: "${{ env.MOD_VERSION }}+26.1"
+          version-type: release
+          loaders: fabric
+          game-versions: "26.1"
+          java: 25
+          dependencies: |
+            fabric-api
+            modmenu
+            yacl
+
+      - name: Publish 26.1.1
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-token: ${{ secrets.M_TOKEN }}
+          files: build/libs/${{ env.MOD_VERSION }}/one-click-anvil-${{ env.MOD_VERSION }}+26.1.1.jar
+          name: "${{ env.MOD_VERSION }}+26.1.1"
+          version: "${{ env.MOD_VERSION }}+26.1.1"
+          version-type: release
+          loaders: fabric
+          game-versions: "26.1.1"
+          java: 25
+          dependencies: |
+            fabric-api
+            modmenu
+            yacl
+
+      - name: Publish 26.1.2
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-token: ${{ secrets.M_TOKEN }}
+          files: build/libs/${{ env.MOD_VERSION }}/one-click-anvil-${{ env.MOD_VERSION }}+26.1.2*.jar
+          name: "${{ env.MOD_VERSION }}+26.1.2"
+          version: "${{ env.MOD_VERSION }}+26.1.2"
+          version-type: release
+          loaders: fabric
+          game-versions: "26.1.2"
+          java: 25
           dependencies: |
             fabric-api
             modmenu

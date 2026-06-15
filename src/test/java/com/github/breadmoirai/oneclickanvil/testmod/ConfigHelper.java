@@ -15,9 +15,9 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * Drives the mod's YACL config screen via ModMenu, purely through simulated UI. Targets
- * Minecraft 1.21.7 / ModMenu 15.x (fixed 36px row height, legacy {@code mouseClicked}
- * signature).
+ * Drives the mod's YACL config screen via ModMenu, purely through simulated UI. The
+ * ModMenu mod-list row height is a fixed 36px; the {@code mouseClicked} signature changed
+ * in 1.21.9 (now takes a {@code MouseButtonEvent}), handled via a Stonecutter condition.
  */
 @SuppressWarnings("UnstableApiUsage")
 public class ConfigHelper {
@@ -92,7 +92,12 @@ public class ConfigHelper {
             }
             double cx = btn.getX() + btn.getWidth() / 2.0;
             double cy = btn.getY() + btn.getHeight() / 2.0;
-            btn.mouseClicked(cx, cy, GLFW.GLFW_MOUSE_BUTTON_LEFT);
+            //? if >=1.21.9 {
+            btn.mouseClicked(new net.minecraft.client.input.MouseButtonEvent(cx, cy,
+               new net.minecraft.client.input.MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_LEFT, 0)), false);
+            //? } else {
+            /*btn.mouseClicked(cx, cy, GLFW.GLFW_MOUSE_BUTTON_LEFT);
+            *///? }
          } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
          }

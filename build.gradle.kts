@@ -98,7 +98,9 @@ if (sc.current.parsed < "26") {
     tasks.withType<JavaCompile>().configureEach { dependsOn(transformForBuild) }
 }
 
-val hasClientGameTestApi = property("minecraft_version").toString() >= "1.21.4"
+// Use Stonecutter's semantic version parsing — a lexical String compare breaks on
+// multi-digit patches (e.g. "1.21.10" < "1.21.4" as plain strings).
+val hasClientGameTestApi = sc.current.parsed >= "1.21.4"
 
 sourceSets {
     named("test") {
@@ -112,15 +114,7 @@ sourceSets {
     }
 }
 
-val testTasks = listOf("runTestClient", "compileTestJava")
-val runningTests = hasClientGameTestApi && gradle.startParameter.taskNames.any { name -> testTasks.any { name.endsWith(it) } }
-
 loom {
-    accessWidenerPath.set {
-        return@set if (runningTests) file("src/test/resources/oneclickanviltestmod.accesswidener")
-        else file("src/main/resources/oneclickanvil.accesswidener")
-    }
-
     runs {
         if (hasClientGameTestApi) {
             register("TestClient") {

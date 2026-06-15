@@ -28,14 +28,12 @@
   ],
   "depends": {
     "fabricloader": ">=0.15.7",
-    "fabric-key-binding-api-v1": "*",
     "yet_another_config_lib_v3": ">=${yacl}"
   },
   "recommends": {
     "modmenu": ">=${modmenu}",
     "minecraft": "${minecraft}"
   },
-  "accessWidener": "oneclickanvil.accesswidener",
   "custom": {
     "mc-publish": {
       "modrinth": "k3ZiREPD",

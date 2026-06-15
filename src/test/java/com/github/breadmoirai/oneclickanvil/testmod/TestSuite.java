@@ -14,7 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
@@ -45,7 +45,7 @@ public abstract class TestSuite {
       TestSingleplayerContext world = context.worldBuilder()
          .setUseConsistentSettings(true)
          .create();
-      world.getClientWorld().waitForChunksDownload();
+      world.getClientLevel().waitForChunksDownload();
       // @a required — runCommand runs as the server console (@s = server, not player)
       world.getServer().runCommand("time set day");
       // Creative so anvil renames are free (no XP cost) and items are unlimited.
@@ -115,8 +115,8 @@ public abstract class TestSuite {
             ItemStack stack = slot.getItem();
             if (stack.isEmpty()) continue;
             if (!BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals(itemId)) continue;
-            mc.gameMode.handleInventoryMouseClick(
-               menu.containerId, slot.index, 0, ClickType.QUICK_MOVE, player);
+            mc.gameMode.handleContainerInput(
+               menu.containerId, slot.index, 0, ContainerInput.QUICK_MOVE, player);
             return;
          }
          throw new AssertionError("No stack of " + itemId + " in inventory to quick-move");
@@ -166,6 +166,23 @@ public abstract class TestSuite {
       }
    }
 
+   /**
+    * Waits until exactly {@code expected} stacks of {@code itemId} carry {@code customName}.
+    * Used to verify the multi-stack auto-rename chain finishes renaming every matching stack.
+    * The timeout is generous because each stack costs several ticks (op queue + server round-trip).
+    */
+   protected void assertInventoryCountNamed(String itemId, String customName, int expected) {
+      try {
+         context.waitFor(mc -> countNamed(mc, itemId, customName) == expected, 300);
+      } catch (AssertionError timeout) {
+         int actual = context.computeOnClient(mc -> countNamed(mc, itemId, customName));
+         throw new AssertionError(
+            "Expected " + expected + " stacks of " + itemId + " named '" + customName
+               + "', but found " + actual + " " + snapshotNames(itemId)
+               + " | menu: " + snapshotMenu());
+      }
+   }
+
    protected void assertInventoryNotNamed(String itemId, String customName) {
       context.waitTick();
       boolean found = context.computeOnClient(mc -> hasNamed(mc, itemId, customName));
@@ -186,6 +203,42 @@ public abstract class TestSuite {
          if (name != null && name.getString().equals(customName)) return true;
       }
       return false;
+   }
+
+   private static int countNamed(Minecraft mc, String itemId, String customName) {
+      if (mc.player == null) return 0;
+      Inventory inv = mc.player.getInventory();
+      int count = 0;
+      for (int i = 0; i < inv.getContainerSize(); i++) {
+         ItemStack stack = inv.getItem(i);
+         if (stack.isEmpty()) continue;
+         if (!BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals(itemId)) continue;
+         Component name = stack.get(DataComponents.CUSTOM_NAME);
+         if (name != null && name.getString().equals(customName)) count++;
+      }
+      return count;
+   }
+
+   /** Dumps the open menu's anvil slots (0/1 inputs, 2 output) plus any non-empty inventory slots. */
+   private String snapshotMenu() {
+      return context.computeOnClient(mc -> {
+         if (mc.player == null) return "<no player>";
+         AbstractContainerMenu menu = mc.player.containerMenu;
+         StringBuilder sb = new StringBuilder();
+         for (int i = 0; i < menu.slots.size(); i++) {
+            Slot slot = menu.slots.get(i);
+            boolean inv = slot.container == mc.player.getInventory();
+            ItemStack s = slot.getItem();
+            if (inv && s.isEmpty()) continue; // always show the 3 anvil slots; skip empty inv slots
+            Component name = s.get(DataComponents.CUSTOM_NAME);
+            sb.append(i < 3 ? "ANVIL#" : "inv#").append(i).append('=')
+               .append(s.isEmpty() ? "<empty>"
+                  : BuiltInRegistries.ITEM.getKey(s.getItem()) + " x" + s.getCount()
+                     + (name == null ? " <unnamed>" : " '" + name.getString() + "'"))
+               .append("  ");
+         }
+         return sb.toString();
+      });
    }
 
    private Map<String, String> snapshotNames(String itemId) {

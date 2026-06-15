@@ -11,6 +11,5 @@
   },
   "depends": {
     "one-click-anvil": "*"
-  },
-  "accessWidener": "oneclickanviltestmod.accesswidener"
+  }
 }
