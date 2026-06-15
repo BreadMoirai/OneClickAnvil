@@ -29,10 +29,11 @@
   "depends": {
     "fabricloader": ">=0.15.7",
     "fabric-key-binding-api-v1": "*",
-    "yet_another_config_lib_v3": ">=3.7.1+1.21.6-fabric"
+    "yet_another_config_lib_v3": ">=${yacl}"
   },
   "recommends": {
-    "minecraft": ">=1.21.6"
+    "modmenu": ">=${modmenu}",
+    "minecraft": "${minecraft}"
   },
   "accessWidener": "oneclickanvil.accesswidener",
   "custom": {

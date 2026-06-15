@@ -5,9 +5,9 @@ import dev.isxander.yacl3.api.controller.BooleanControllerBuilder;
 import dev.isxander.yacl3.api.controller.StringControllerBuilder;
 import dev.isxander.yacl3.api.utils.OptionUtils;
 import dev.isxander.yacl3.gui.YACLScreen;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.Component;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +22,7 @@ public class OneClickAnvilConfigScreen extends YACLScreen {
 
    private static YetAnotherConfigLib createConfig() {
       return YetAnotherConfigLib.createBuilder()
-         .title(Text.translatable("oneclickanvil.config.title"))
+         .title(Component.translatable("oneclickanvil.config.title"))
          .category(categoryForConfig(OneClickAnvilConfig.getInstance()))
          .save(OneClickAnvilConfig::saveModConfig)
          .build();
@@ -30,22 +30,22 @@ public class OneClickAnvilConfigScreen extends YACLScreen {
 
    private static ConfigCategory categoryForConfig(OneClickAnvilConfig config) {
       ConfigCategory.Builder builder = ConfigCategory.createBuilder()
-         .name(Text.translatable("oneclickanvil.config.title"))
-         .tooltip(Text.translatable("modmenu.summaryTranslation.one-click-anvil"));
+         .name(Component.translatable("oneclickanvil.config.title"))
+         .tooltip(Component.translatable("modmenu.summaryTranslation.one-click-anvil"));
       List<OneClickAnvilConfig.Entry> entries = config.getEntries();
       for (int i = 0; i < entries.size(); i++) {
          builder.group(optionsForEntry(i + 1, entries.get(i)));
       }
       builder.group(OptionGroup.createBuilder()
          .option(
-            ButtonOption.createBuilder().name(Text.translatable("oneclickanvil.config.entry.add"))
+            ButtonOption.createBuilder().name(Component.translatable("oneclickanvil.config.entry.add"))
                .action((yaclScreen, buttonOption) -> {
                      Runnable action = config::addEntry;
                      reloadConfigScreen((OneClickAnvilConfigScreen) yaclScreen, action);
                   }
                ).build()
          ).option(
-            ButtonOption.createBuilder().name(Text.translatable("oneclickanvil.config.entry.remove"))
+            ButtonOption.createBuilder().name(Component.translatable("oneclickanvil.config.entry.remove"))
                .action((yaclScreen, buttonOption) -> {
                      Runnable action = () -> config.removeEntry(config.getEntries().getLast());
                      reloadConfigScreen((OneClickAnvilConfigScreen) yaclScreen, action);
@@ -75,36 +75,36 @@ public class OneClickAnvilConfigScreen extends YACLScreen {
             changes.put(desc, (String) option.pendingValue());
          }
       });
-      MinecraftClient.getInstance().setScreen(newScreen);
+      Minecraft.getInstance().setScreen(newScreen);
    }
 
    private static OptionGroup optionsForEntry(int index, OneClickAnvilConfig.Entry entry) {
       return OptionGroup.createBuilder()
-         .name(Text.translatable("oneclickanvil.config.entry.name").append(" #" + index))
+         .name(Component.translatable("oneclickanvil.config.entry.name").append(" #" + index))
          .option(Option.<String>createBuilder()
-            .name(Text.translatable("oneclickanvil.config.item.name"))
+            .name(Component.translatable("oneclickanvil.config.item.name"))
             .description(OptionDescription.of(
-               Text.translatable("oneclickanvil.config.entry.name").append(" #" + index + " - ")
-                  .append(Text.translatable("oneclickanvil.config.item.description"))))
+               Component.translatable("oneclickanvil.config.entry.name").append(" #" + index + " - ")
+                  .append(Component.translatable("oneclickanvil.config.item.description"))))
             .binding("",
                entry::getItem,
                entry::setItem)
             .controller(StringControllerBuilder::create)
             .build()
-         ).option(Option.<String>createBuilder().name(Text.translatable("oneclickanvil.config.rename.name"))
+         ).option(Option.<String>createBuilder().name(Component.translatable("oneclickanvil.config.rename.name"))
             .description(OptionDescription.of(
-               Text.translatable("oneclickanvil.config.entry.name").append(" #" + index + " - ")
-                  .append(Text.translatable("oneclickanvil.config.rename.description"))))
+               Component.translatable("oneclickanvil.config.entry.name").append(" #" + index + " - ")
+                  .append(Component.translatable("oneclickanvil.config.rename.description"))))
             .binding("",
                entry::getRename,
                entry::setRename)
             .controller(StringControllerBuilder::create)
             .build()
          ).option(
-            Option.<Boolean>createBuilder().name(Text.translatable("oneclickanvil.config.enabled.name"))
+            Option.<Boolean>createBuilder().name(Component.translatable("oneclickanvil.config.enabled.name"))
                .description(OptionDescription.of(
-                  Text.translatable("oneclickanvil.config.entry.name").append(" #" + index + " - ")
-                     .append(Text.translatable("oneclickanvil.config.enabled.description"))))
+                  Component.translatable("oneclickanvil.config.entry.name").append(" #" + index + " - ")
+                     .append(Component.translatable("oneclickanvil.config.enabled.description"))))
                .binding(true,
                   entry::isEnabled,
                   entry::setEnabled)

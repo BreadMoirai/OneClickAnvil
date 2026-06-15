@@ -6,17 +6,18 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.ingame.AnvilScreen;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerInteractionManager;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.text.Text;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.AnvilScreen;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -46,17 +47,17 @@ public class OneClickAnvilClient implements ClientModInitializer, ClientTickEven
       renaming = null;
    }
 
-   public void onAnvilScreenSlotUpdate(AnvilScreen anvil, ScreenHandler handler, int slotId, ItemStack stack) {
-      ClientPlayerEntity player = MinecraftClient.getInstance().player;
+   public void onAnvilScreenSlotUpdate(AnvilScreen anvil, AbstractContainerMenu handler, int slotId, ItemStack stack) {
+      LocalPlayer player = Minecraft.getInstance().player;
       if (player == null) return;
-      ClientPlayerInteractionManager interactionManager = MinecraftClient.getInstance().interactionManager;
+      MultiPlayerGameMode interactionManager = Minecraft.getInstance().gameMode;
       if (interactionManager == null) return;
       if (slotId == 0) {
-         if (stack.getCustomName() != null) return;
-         if (stack.getCount() != stack.getMaxCount()) return;
+         if (stack.get(DataComponents.CUSTOM_NAME) != null) return;
+         if (stack.getCount() != stack.getMaxStackSize()) return;
          getRename(stack).ifPresent(rename -> ops.add(() -> {
-            this.renaming = Registries.ITEM.getId(stack.getItem()).toString();
-            anvil.nameField.setText(rename);
+            this.renaming = BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
+            anvil.name.setValue(rename);
          }));
       }
       if (slotId == 2) {
@@ -66,26 +67,26 @@ public class OneClickAnvilClient implements ClientModInitializer, ClientTickEven
          if (stack.isEmpty()) {
             String to_rename = this.renaming;
             ops.add(() -> {
-               for (Slot slot : anvil.getScreenHandler().slots) {
-                  if (slot.inventory != player.getInventory()) continue;
-                  if (!slot.hasStack()) continue;
-                  ItemStack nextStack = slot.getStack();
-                  if (!to_rename.equals(Registries.ITEM.getId(nextStack.getItem()).toString())) continue;
-                  if (nextStack.getCustomName() != null) continue;
-                  if (nextStack.getCount() != nextStack.getMaxCount()) continue;
-                  interactionManager.clickSlot(anvil.getScreenHandler().syncId, slot.id, 0, SlotActionType.QUICK_MOVE,
+               for (Slot slot : anvil.getMenu().slots) {
+                  if (slot.container != player.getInventory()) continue;
+                  if (!slot.hasItem()) continue;
+                  ItemStack nextStack = slot.getItem();
+                  if (!to_rename.equals(BuiltInRegistries.ITEM.getKey(nextStack.getItem()).toString())) continue;
+                  if (nextStack.get(DataComponents.CUSTOM_NAME) != null) continue;
+                  if (nextStack.getCount() != nextStack.getMaxStackSize()) continue;
+                  interactionManager.handleInventoryMouseClick(anvil.getMenu().containerId, slot.index, 0, ClickType.QUICK_MOVE,
                      player);
                   return;
                }
                this.renaming = null;
             });
          } else {
-            Text customName = stack.getCustomName();
+            Component customName = stack.get(DataComponents.CUSTOM_NAME);
             if (customName == null) return;
             getRename(stack).ifPresent(rename -> {
-               if (rename.equals(customName.getLiteralString())) {
+               if (rename.equals(customName.getString())) {
                   ops.add(
-                     () -> interactionManager.clickSlot(handler.syncId, slotId, 0, SlotActionType.QUICK_MOVE, player));
+                     () -> interactionManager.handleInventoryMouseClick(handler.containerId, slotId, 0, ClickType.QUICK_MOVE, player));
                }
             });
          }
@@ -95,7 +96,7 @@ public class OneClickAnvilClient implements ClientModInitializer, ClientTickEven
    private Optional<String> getRename(ItemStack stack) {
       for (OneClickAnvilConfig.Entry entry : config.getEntries()) {
          if (!entry.isEnabled()) continue;
-         if (Registries.ITEM.getId(stack.getItem()).toString().equals(entry.getItem())) {
+         if (BuiltInRegistries.ITEM.getKey(stack.getItem()).toString().equals(entry.getItem())) {
             return Optional.of(entry.getRename());
          }
       }
@@ -103,13 +104,13 @@ public class OneClickAnvilClient implements ClientModInitializer, ClientTickEven
    }
 
    @Override
-   public void onStartTick(MinecraftClient minecraftClient) {
+   public void onStartTick(Minecraft client) {
       if (ops.isEmpty()) return;
       ops.removeFirst().run();
    }
 
    @Override
-   public void afterInit(MinecraftClient minecraftClient, Screen screen, int i, int i1) {
+   public void afterInit(Minecraft client, Screen screen, int i, int i1) {
       ScreenEvents.remove(screen).register(this);
    }
 

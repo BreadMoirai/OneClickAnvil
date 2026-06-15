@@ -1,0 +1,5 @@
+accessWidener v2 named
+
+# Mirrors the main access widener — when running tests this file replaces the main one,
+# so it must contain everything the mod itself needs, plus any test-only widenings.
+accessible field net/minecraft/client/gui/screens/inventory/AnvilScreen name Lnet/minecraft/client/gui/components/EditBox;

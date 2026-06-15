@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "one-click-anvil-testmod",
+  "version": "1.0.0",
+  "name": "One Click Anvil Testmod",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": [
+      "com.github.breadmoirai.oneclickanvil.testmod.OneClickAnvilGameTests"
+    ]
+  },
+  "depends": {
+    "one-click-anvil": "*"
+  },
+  "accessWidener": "oneclickanviltestmod.accesswidener"
+}
