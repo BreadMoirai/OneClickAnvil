@@ -165,3 +165,19 @@ jobs:
             fabric-api
             modmenu
             yacl
+
+      - name: Publish 26.2
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-token: ${{ secrets.M_TOKEN }}
+          files: build/libs/${{ env.MOD_VERSION }}/one-click-anvil-${{ env.MOD_VERSION }}+26.2*.jar
+          name: "${{ env.MOD_VERSION }}+26.2"
+          version: "${{ env.MOD_VERSION }}+26.2"
+          version-type: release
+          loaders: fabric
+          game-versions: "26.2"
+          java: 25
+          dependencies: |
+            fabric-api
+            modmenu
+            yacl

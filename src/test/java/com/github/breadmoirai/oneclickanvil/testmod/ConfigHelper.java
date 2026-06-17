@@ -7,7 +7,9 @@ import dev.isxander.yacl3.api.Option;
 import dev.isxander.yacl3.api.OptionGroup;
 import dev.isxander.yacl3.gui.YACLScreen;
 import net.fabricmc.fabric.api.client.gametest.v1.context.ClientGameTestContext;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
 import org.lwjgl.glfw.GLFW;
 
@@ -37,6 +39,18 @@ public class ConfigHelper {
       this.context = context;
    }
 
+   /**
+    * The currently displayed screen. MC 26.2 removed the public {@code Minecraft.screen} field;
+    * the current screen now lives on {@code Minecraft.gui} and is read via {@code Gui.screen()}.
+    */
+   public static Screen currentScreen(Minecraft mc) {
+      //? if >=26.2 {
+      return mc.gui.screen();
+      //? } else {
+      /*return mc.screen;
+      *///? }
+   }
+
    // -------------------------------------------------------------------------
    // Navigation
    // -------------------------------------------------------------------------
@@ -46,7 +60,7 @@ public class ConfigHelper {
       context.waitForScreen(ModsScreen.class);
 
       int[] entryCenter = context.computeOnClient(mc -> {
-         ModsScreen screen = (ModsScreen) mc.screen;
+         ModsScreen screen = (ModsScreen) currentScreen(mc);
          try {
             Field modListField = ModsScreen.class.getDeclaredField("modList");
             modListField.setAccessible(true);
@@ -82,7 +96,7 @@ public class ConfigHelper {
       context.waitTick();
 
       context.runOnClient(mc -> {
-         ModsScreen screen = (ModsScreen) mc.screen;
+         ModsScreen screen = (ModsScreen) currentScreen(mc);
          try {
             Field configField = ModsScreen.class.getDeclaredField("configureButton");
             configField.setAccessible(true);
@@ -109,12 +123,12 @@ public class ConfigHelper {
    public void saveAndCloseYacl() {
       context.tryClickScreenButton("yacl.gui.save");
       context.clickScreenButton("gui.done");
-      context.waitFor(mc -> !(mc.screen instanceof YACLScreen));
+      context.waitFor(mc -> !(currentScreen(mc) instanceof YACLScreen));
    }
 
    public void closeModsScreen() {
       context.getInput().pressKey(GLFW.GLFW_KEY_ESCAPE);
-      context.waitFor(mc -> mc.screen == null || mc.screen instanceof TitleScreen);
+      context.waitFor(mc -> currentScreen(mc) == null || currentScreen(mc) instanceof TitleScreen);
    }
 
    // -------------------------------------------------------------------------
@@ -124,7 +138,7 @@ public class ConfigHelper {
    /** Invokes a {@link ButtonOption}'s action (e.g. "Add Entry"), which rebuilds the screen. */
    public void clickYaclButton(String label) {
       context.runOnClient(mc -> {
-         YACLScreen screen = (YACLScreen) mc.screen;
+         YACLScreen screen = (YACLScreen) currentScreen(mc);
          for (ConfigCategory category : screen.config.categories()) {
             for (OptionGroup group : category.groups()) {
                for (Option<?> option : group.options()) {
@@ -153,7 +167,7 @@ public class ConfigHelper {
    public String getYaclString(String label) {
       return context.computeOnClient(mc -> {
          @SuppressWarnings("unchecked")
-         Option<String> option = (Option<String>) findOption((YACLScreen) mc.screen, label);
+         Option<String> option = (Option<String>) findOption((YACLScreen) currentScreen(mc), label);
          return option.pendingValue();
       });
    }
@@ -161,7 +175,7 @@ public class ConfigHelper {
    public boolean getYaclBoolean(String label) {
       return context.computeOnClient(mc -> {
          @SuppressWarnings("unchecked")
-         Option<Boolean> option = (Option<Boolean>) findOption((YACLScreen) mc.screen, label);
+         Option<Boolean> option = (Option<Boolean>) findOption((YACLScreen) currentScreen(mc), label);
          return option.pendingValue();
       });
    }
@@ -169,7 +183,7 @@ public class ConfigHelper {
    private <T> void setOption(String label, T value) {
       context.runOnClient(mc -> {
          @SuppressWarnings("unchecked")
-         Option<T> option = (Option<T>) findOption((YACLScreen) mc.screen, label);
+         Option<T> option = (Option<T>) findOption((YACLScreen) currentScreen(mc), label);
          option.requestSet(value);
       });
       context.waitTick();

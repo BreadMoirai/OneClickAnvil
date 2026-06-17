@@ -98,7 +98,7 @@ public abstract class TestSuite {
 
    protected void closeScreen() {
       context.getInput().pressKey(GLFW.GLFW_KEY_ESCAPE);
-      context.waitFor(mc -> mc.screen == null);
+      context.waitFor(mc -> ConfigHelper.currentScreen(mc) == null);
    }
 
    /**

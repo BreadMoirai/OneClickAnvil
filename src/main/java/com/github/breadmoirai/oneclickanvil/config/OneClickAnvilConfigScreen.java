@@ -75,7 +75,11 @@ public class OneClickAnvilConfigScreen extends YACLScreen {
             changes.put(desc, (String) option.pendingValue());
          }
       });
-      Minecraft.getInstance().setScreen(newScreen);
+      //? if >=26.2 {
+      Minecraft.getInstance().setScreenAndShow(newScreen);
+      //? } else {
+      /*Minecraft.getInstance().setScreen(newScreen);
+      *///? }
    }
 
    private static OptionGroup optionsForEntry(int index, OneClickAnvilConfig.Entry entry) {
