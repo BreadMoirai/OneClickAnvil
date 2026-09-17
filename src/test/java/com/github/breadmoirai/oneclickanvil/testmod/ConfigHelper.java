@@ -11,7 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.TitleScreen;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -92,7 +92,7 @@ public class ConfigHelper {
       });
 
       context.getInput().setCursorPos(entryCenter[0], entryCenter[1]);
-      context.getInput().pressMouse(GLFW.GLFW_MOUSE_BUTTON_LEFT);
+      context.getInput().pressMouse(InputConstants.MOUSE_BUTTON_LEFT);
       context.waitTick();
 
       context.runOnClient(mc -> {
@@ -108,9 +108,9 @@ public class ConfigHelper {
             double cy = btn.getY() + btn.getHeight() / 2.0;
             //? if >=1.21.9 {
             btn.mouseClicked(new net.minecraft.client.input.MouseButtonEvent(cx, cy,
-               new net.minecraft.client.input.MouseButtonInfo(GLFW.GLFW_MOUSE_BUTTON_LEFT, 0)), false);
+               new net.minecraft.client.input.MouseButtonInfo(InputConstants.MOUSE_BUTTON_LEFT, 0)), false);
             //? } else {
-            /*btn.mouseClicked(cx, cy, GLFW.GLFW_MOUSE_BUTTON_LEFT);
+            /*btn.mouseClicked(cx, cy, InputConstants.MOUSE_BUTTON_LEFT);
             *///? }
          } catch (ReflectiveOperationException e) {
             throw new RuntimeException(e);
@@ -127,7 +127,7 @@ public class ConfigHelper {
    }
 
    public void closeModsScreen() {
-      context.getInput().pressKey(GLFW.GLFW_KEY_ESCAPE);
+      context.getInput().pressKey(InputConstants.KEY_ESCAPE);
       context.waitFor(mc -> currentScreen(mc) == null || currentScreen(mc) instanceof TitleScreen);
    }
 

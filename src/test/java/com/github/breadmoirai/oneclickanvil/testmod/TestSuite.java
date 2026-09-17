@@ -19,7 +19,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -45,7 +45,7 @@ public abstract class TestSuite {
       TestSingleplayerContext world = context.worldBuilder()
          .setUseConsistentSettings(true)
          .create();
-      world.getClientLevel().waitForChunksDownload();
+      world.getConnection().waitForChunksDownload();
       // @a required — runCommand runs as the server console (@s = server, not player)
       world.getServer().runCommand("time set day");
       // Creative so anvil renames are free (no XP cost) and items are unlimited.
@@ -97,7 +97,7 @@ public abstract class TestSuite {
    }
 
    protected void closeScreen() {
-      context.getInput().pressKey(GLFW.GLFW_KEY_ESCAPE);
+      context.getInput().pressKey(InputConstants.KEY_ESCAPE);
       context.waitFor(mc -> ConfigHelper.currentScreen(mc) == null);
    }
 
